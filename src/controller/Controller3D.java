@@ -6,11 +6,14 @@ import raster.ZBuffer;
 import rasterize.LineRasterizer;
 import rasterize.LineRasterizerGraphics;
 import rasterize.TriangleRasterizer;
+import solid.Solid;
 import transforms.*;
 import view.Panel;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Controller3D {
     private final Panel panel;
@@ -20,6 +23,7 @@ public class Controller3D {
     private Camera camera;
     private final Mat4PerspRH proj;
     private final Mat4OrthoRH orth;
+    private List<Solid> solidList = new ArrayList<>();
 
     public Controller3D(Panel panel) {
         this.panel = panel;
