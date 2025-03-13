@@ -9,6 +9,7 @@ import transforms.Mat4;
 import transforms.Point3D;
 import transforms.Vec3D;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Renderer {
@@ -17,6 +18,7 @@ public class Renderer {
     private LineRasterizer lineRasterizer;
     private int width, height;
     private Mat4 view, projection;
+    private List <Point3D> transformed = new ArrayList<Point3D>();
 
     public Renderer(LineRasterizer lineRasterizer, TriangleRasterizer triangleRasterizer,int width, int height) {
         this.lineRasterizer = lineRasterizer;
@@ -41,11 +43,14 @@ public class Renderer {
 
 
     public void renderSolid(Solid solid){
+        transformed.clear(); // We take every point in our vertex buffer and transform it with first three steps of visualisation pipeline
+        for(int i = 0;i < solid.getVertexBuffer().size();i++){
+            Point3D p = solid.getVertexBuffer().get(i).getPoint();
+            p = p.mul(solid.getModel()).mul(view).mul(projection);
+            transformed.add(p);
+        }
 
-
-
-
-
+        //TODO: DEHOMOGENIZACE, OREZANI
 
         List<Part> partBuffer = solid.getPartBuffer();
 
