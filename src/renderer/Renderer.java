@@ -5,21 +5,48 @@ import rasterize.LineRasterizer;
 import rasterize.TriangleRasterizer;
 import model.Part;
 import solid.Solid;
+import transforms.Mat4;
 import transforms.Point3D;
+import transforms.Vec3D;
 
 import java.util.List;
 
 public class Renderer {
 
-    private LineRasterizer lineRasterizer;
     private TriangleRasterizer triangleRasterizer;
+    private LineRasterizer lineRasterizer;
+    private int width, height;
+    private Mat4 view, projection;
 
-    public Renderer(LineRasterizer lineRasterizer, TriangleRasterizer triangleRasterizer) {
+    public Renderer(LineRasterizer lineRasterizer, TriangleRasterizer triangleRasterizer,int width, int height) {
         this.lineRasterizer = lineRasterizer;
         this.triangleRasterizer = triangleRasterizer;
+        this.width = width;
+        this.height = height;
     }
 
+    public void setView(Mat4 view) {
+        this.view = view;
+    }
+    public void setProjection(Mat4 projection) {
+        this.projection = projection;
+    }
+
+    private Vec3D transformToScreen(Vec3D point) {
+        return point.mul(new Vec3D(1, -1, 1))
+                .add(new Vec3D(1, 1, 0))
+                .mul(new Vec3D((width - 1) / 2., (height - 1) / 2., 1));
+
+    }
+
+
     public void renderSolid(Solid solid){
+
+
+
+
+
+
         List<Part> partBuffer = solid.getPartBuffer();
 
         for (Part part : partBuffer) {

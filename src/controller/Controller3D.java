@@ -6,8 +6,7 @@ import raster.ZBuffer;
 import rasterize.LineRasterizer;
 import rasterize.LineRasterizerGraphics;
 import rasterize.TriangleRasterizer;
-import transforms.Col;
-import transforms.Point3D;
+import transforms.*;
 import view.Panel;
 
 import java.awt.event.KeyAdapter;
@@ -18,7 +17,9 @@ public class Controller3D {
     private final ZBuffer Zbuffer;
     private final LineRasterizer LineRasterizer;
     private final TriangleRasterizer TriangleRasterizer;
-
+    private Camera camera;
+    private final Mat4PerspRH proj;
+    private final Mat4OrthoRH orth;
 
     public Controller3D(Panel panel) {
         this.panel = panel;
@@ -26,6 +27,18 @@ public class Controller3D {
         LineRasterizer = new LineRasterizerGraphics(panel.getRaster());
         TriangleRasterizer = new TriangleRasterizer(LineRasterizer, Zbuffer);
         initListeners();
+
+        camera = new Camera()
+                .withPosition(new Vec3D(0.5, -1.5, 1))
+                .withAzimuth(Math.toRadians(90))
+                .withZenith(Math.toRadians(-25))
+                .withFirstPerson(true);
+
+        proj = new Mat4PerspRH(Math.toRadians(60), panel.getRaster().getHeight() / (float) panel.getRaster().getWidth(), 0.01, 200);
+        orth = new Mat4OrthoRH(4, (float) 4 * panel.getWidth() / panel.getHeight(), 0.01, 200);
+
+        //renderer.setProjection(proj); // Initial perspective
+        //renderer.setView(camera.getViewMatrix()); // Setting basic camera.
 
         redraw();
     }

@@ -48,18 +48,9 @@ public class TriangleRasterizer {
             C = new Vertex(tmp);
         }
 
-
-        int xA =(int)Math.round(A.getPoint().getX());
         int yA =(int)Math.round(A.getPoint().getY());
-        int zA =(int)Math.round(A.getPoint().getZ());
-
-        int xB =(int)Math.round(B.getPoint().getX());
         int yB =(int)Math.round(B.getPoint().getY());
-        int zB =(int)Math.round(B.getPoint().getZ());
-
-        int xC =(int)Math.round(C.getPoint().getX());
         int yC =(int)Math.round(C.getPoint().getY());
-        int zC =(int)Math.round(C.getPoint().getZ());
 
         System.out.println(yA + " " + yB + " " + yC);
 
@@ -87,6 +78,16 @@ public class TriangleRasterizer {
 
             for(int x = x1; x < x2; x++) {
                 //TODO: OREZANI HLIDAT OKNO OBRAZOVKY
+                double z1 = a1.getPoint().getZ();
+                double z2 = a2.getPoint().getZ();
+
+                double tz = (double)(y-a1.getPoint().getY())/((double)a2.getPoint().getY() - a1.getPoint().getY());
+                Vertex z3 = ((Vertex)lerp.lerp(a1,a2,tz));
+                double z = z3.getPoint().getZ();
+                System.out.println(z);
+
+
+
                 buffer.setPixelWithZTest(x,y,0.1,new Col(0xffff00));
             }
         }
