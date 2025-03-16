@@ -47,7 +47,7 @@ public class TriangleRasterizer {
         int yB =(int)Math.round(B.getPoint().getY());
         int yC =(int)Math.round(C.getPoint().getY());
 
-        for(int y = Math.max(yA,1); y < Math.min(yB,maxWidth); y++) {
+        for(int y = Math.max(yA,1); y < Math.min(yB,maxHeight); y++) {
             double tAB = ((double)y-yA)/((double)yB-yA);
             Vertex a1 = ((Vertex)lerp.lerp(A,B,tAB));
             double tAC = (double)(y - yA)/((double)yC-yA);
