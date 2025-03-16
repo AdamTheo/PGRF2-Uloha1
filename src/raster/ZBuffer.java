@@ -16,4 +16,10 @@ public class ZBuffer {
 
         }
     }
+    public int getWidth(){
+        return depthBuffer.getWidth();
+    }
+    public int getHeight(){
+        return depthBuffer.getHeight();
+    }
 }
