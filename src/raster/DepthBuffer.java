@@ -6,11 +6,11 @@ public class DepthBuffer implements Raster<Double>{
     int height;
 
     DepthBuffer(int width, int height) {
-        buffer = new Double[height][width];
+        buffer = new Double[width][height];
         this.width = width;
         this.height = height;
-        for(int i = 0 ; i < height ; i++){
-            for(int j = 0 ; j < width ; j++){
+        for(int i = 0 ; i < width ; i++){
+            for(int j = 0 ; j < height ; j++){
                 buffer[i][j] = 1.0;
             }
         }
@@ -28,12 +28,12 @@ public class DepthBuffer implements Raster<Double>{
 
     @Override
     public int getWidth() {
-        return 0;
+        return width;
     }
 
     @Override
     public int getHeight() {
-        return 0;
+        return height;
     }
 
     @Override
