@@ -18,7 +18,7 @@ public class Renderer {
     private LineRasterizer lineRasterizer;
     private int width, height;
     private Mat4 view, projection;
-    private List <Point3D> transformed = new ArrayList<Point3D>();
+    private List <Vertex> transformed = new ArrayList<Vertex>();
 
     public Renderer(LineRasterizer lineRasterizer, TriangleRasterizer triangleRasterizer,int width, int height) {
         this.lineRasterizer = lineRasterizer;
@@ -30,6 +30,7 @@ public class Renderer {
     public void setView(Mat4 view) {
         this.view = view;
     }
+
     public void setProjection(Mat4 projection) {
         this.projection = projection;
     }
@@ -44,13 +45,23 @@ public class Renderer {
 
     public void renderSolid(Solid solid){
         transformed.clear(); // We take every point in our vertex buffer and transform it with first three steps of visualisation pipeline
-        for(int i = 0;i < solid.getVertexBuffer().size();i++){
+        for(int i = 0;i < solid.getVertexBuffer().size();i++) {
             Point3D p = solid.getVertexBuffer().get(i).getPoint();
             p = p.mul(solid.getModel()).mul(view).mul(projection);
-            transformed.add(p);
+
+            double x = p.getX();
+            double y = p.getY();
+            double z = p.getZ();
+            double w = p.getW();
+            //Here we are doing dehomogenization and screen transformation.
+            if (w != 0 && x > -w && x < w && y > -w && y < w && z > 0 && z < w) {   //TODO: TO JE PRISNE OREZANI, DODELAT
+                p = p.mul(1 / p.getW());
+            }
+            Vec3D a = transformToScreen(new Vec3D(p));
+            transformed.add(solid.getVertexBuffer().get(i));
+            transformed.get(i).setPoint(a);
         }
 
-        //TODO: DEHOMOGENIZACE, OREZANI
 
         List<Part> partBuffer = solid.getPartBuffer();
 
@@ -64,9 +75,10 @@ public class Renderer {
                         int indexC = start + 2;
                         start +=3;
 
-                        Vertex vertexA = solid.getVertexBuffer().get(solid.getIndexBuffer().get(indexA));
-                        Vertex vertexB = solid.getVertexBuffer().get(solid.getIndexBuffer().get(indexB));
-                        Vertex vertexC = solid.getVertexBuffer().get(solid.getIndexBuffer().get(indexC));
+                        //  todo: clipping dole
+                        Vertex vertexA = transformed.get(solid.getIndexBuffer().get(indexA) );
+                        Vertex vertexB = transformed.get(solid.getIndexBuffer().get(indexB) );
+                        Vertex vertexC = transformed.get(solid.getIndexBuffer().get(indexC) );
 
                         triangleRasterizer.rasterize(vertexA, vertexB, vertexC);
                     }

@@ -22,4 +22,8 @@ public class ZBuffer {
     public int getHeight(){
         return depthBuffer.getHeight();
     }
+
+    public void clear(){
+        depthBuffer.clear();
+    }
 }

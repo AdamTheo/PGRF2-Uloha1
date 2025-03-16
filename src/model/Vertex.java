@@ -2,6 +2,7 @@ package model;
 
 import transforms.Col;
 import transforms.Point3D;
+import transforms.Vec3D;
 
 import java.awt.*;
 
@@ -36,6 +37,10 @@ public class Vertex implements Vectorizable<Vertex> {
 
     public void setPoint(Point3D point) {
         this.point = point;
+    }
+
+    public void setPoint(Vec3D point){
+        this.point = new Point3D(point);
     }
 
     public Col getColor() {
