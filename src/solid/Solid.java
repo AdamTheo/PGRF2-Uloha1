@@ -28,4 +28,7 @@ public abstract class Solid {
     public Mat4 getModel() {
         return model;
     }
+    public void setModel(Mat4 model) {
+        this.model = model;
+    }
 }
