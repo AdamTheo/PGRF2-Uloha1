@@ -2,6 +2,7 @@ package renderer;
 
 import model.Vertex;
 import rasterize.LineRasterizer;
+import rasterize.LineRasterizerWithZ;
 import rasterize.TriangleRasterizer;
 import model.Part;
 import solid.Solid;
@@ -16,13 +17,13 @@ import java.util.List;
 public class Renderer {
 
     private TriangleRasterizer triangleRasterizer;
-    private LineRasterizer lineRasterizer;
+    private LineRasterizerWithZ lineRasterizer;
     private int width, height;
     private Mat4 view, projection;
     private List <Vertex> transformed = new ArrayList<Vertex>();
     private Lerp lerp;
 
-    public Renderer(LineRasterizer lineRasterizer, TriangleRasterizer triangleRasterizer,int width, int height) {
+    public Renderer(LineRasterizerWithZ lineRasterizer, TriangleRasterizer triangleRasterizer, int width, int height) {
         this.lineRasterizer = lineRasterizer;
         this.triangleRasterizer = triangleRasterizer;
         this.width = width;
@@ -78,6 +79,27 @@ public class Renderer {
 
     }
 
+    public void drawLine(Vertex a, Vertex b){
+        Vertex A = new Vertex(a);
+        Vertex B = new Vertex(b);
+
+        Point3D p = A.getPoint();
+        if(p.getW() != 0){
+            p = p.mul(1/p.getW());
+        }
+        Vec3D e = transformToScreen(new Vec3D(p));
+        A.setPoint(new Point3D(e));
+
+        p = B.getPoint();
+        if(p.getW() != 0){
+            p = p.mul(1/p.getW());
+        }
+        e = transformToScreen(new Vec3D(p));
+        B.setPoint(new Point3D(e));
+        lineRasterizer.rasterize(A,B);
+
+    }
+
 
     public void renderSolid(Solid solid){
         transformed.clear(); // We take every point in our vertex buffer and transform it with first three steps of visualisation pipeline
@@ -100,7 +122,6 @@ public class Renderer {
 
         }
 
-
         List<Part> partBuffer = solid.getPartBuffer();
 
         for (Part part : partBuffer) {
@@ -122,6 +143,18 @@ public class Renderer {
                     }
                     break;
                 case Lines:
+                    start = part.getStart();
+                    for(int i = 0; i < part.getCount();i++) {
+                        int indexA = start;
+                        int indexB = start + 1;
+                        start +=2;
+
+                        Vertex vertexA = transformed.get(solid.getIndexBuffer().get(indexA) );
+                        Vertex vertexB = transformed.get(solid.getIndexBuffer().get(indexB) );
+                        ClipLine(vertexA, vertexB);
+
+                    }
+
                     break;
                 default:
                     break;
@@ -198,5 +231,32 @@ public class Renderer {
 
         //triangleRasterizer.rasterize(A,B,C);
         drawTriangle(A,B,C);
+    }
+    public void ClipLine(Vertex a, Vertex b){
+        Vertex A = new Vertex(a);
+        Vertex B = new Vertex(b);
+        double zMin = 0;
+        //Same like with triangle, A has highest Z
+        if(A.getPoint().getZ() < B.getPoint().getZ()) {
+            Vertex tmp = new Vertex(A);
+            A = new Vertex(B);
+            B = new Vertex(tmp);
+        }
+        double zA = A.getPoint().getZ();
+        double zB = B.getPoint().getZ();
+
+        if(A.getPoint().getZ() < zMin){ // Case 1, both are lower then 0
+            return;
+
+        }
+        if(B.getPoint().getZ() < zMin){ // Case 2, only second is outside
+            double t1 = (0-zA)/(zB-zA); //That zero is not necessary cause its fcking zero, but its for me as litlle check
+            Vertex b1 = (Vertex)lerp.lerp(A,B,t1);
+            drawLine(A,b1);
+            return;
+        }
+        //Case 3, both are inside, everything is alright
+        drawLine(A,B);
+
     }
 }
