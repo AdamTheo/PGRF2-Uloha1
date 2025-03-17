@@ -5,10 +5,9 @@ import raster.DepthBuffer;
 import raster.ZBuffer;
 import rasterize.LineRasterizer;
 import rasterize.LineRasterizerGraphics;
+import rasterize.LineRasterizerWithZ;
 import rasterize.TriangleRasterizer;
-import solid.AxisX;
-import solid.Cube;
-import solid.Solid;
+import solid.*;
 import transforms.*;
 import view.Panel;
 import renderer.Renderer;
@@ -23,12 +22,15 @@ public class Controller3D {
     private final Renderer renderer;
     private final LineRasterizer LineRasterizer;
     private final TriangleRasterizer TriangleRasterizer;
+    private final LineRasterizerWithZ lineRasterizerWithZ;
     private Camera camera;
     private final Mat4PerspRH proj;
     private final Mat4OrthoRH orth;
     private List<Solid> solidList = new ArrayList<>();
     private int chosenObject = 0;
     private final Solid cube;
+    private final Solid pyramid;
+    private final Solid pillar;
 
     int startX;
     int startY;
@@ -37,13 +39,18 @@ public class Controller3D {
         this.panel = panel;
         Zbuffer = new ZBuffer(panel.getRaster());
         LineRasterizer = new LineRasterizerGraphics(panel.getRaster());
+        lineRasterizerWithZ = new LineRasterizerWithZ(Zbuffer);
         TriangleRasterizer = new TriangleRasterizer(LineRasterizer, Zbuffer);
         initListeners();
         cube = new Cube();
         cube.setModel(new Mat4Transl(0.2,0.4,0.2));
+        pyramid = new Pyramid();
+        pyramid.setModel(new Mat4Transl(-0.2,-0.4,0.1));
+        pillar = new Pillar();
+        pillar.setModel(new Mat4Transl(0.3,-0.4,0.1));
 
         renderer = new Renderer(
-                new LineRasterizerGraphics(panel.getRaster()),
+                new LineRasterizerWithZ(Zbuffer),
                 TriangleRasterizer,
                 panel.getRaster().getWidth(),
                 panel.getRaster().getHeight()
@@ -235,6 +242,9 @@ public class Controller3D {
         //AxisX axisX = new AxisX();
         //renderer.renderSolid(axisX);
         renderer.renderSolid(cube);
+        renderer.renderSolid(pyramid);
+        renderer.renderSolid(pillar);
+        //lineRasterizerWithZ.rasterize(new Vertex(500,500,0.5,new Col(0xff0000)),new Vertex(100,100,0.5,new Col(0x00ff00)));
         //cube.test();
 
 
