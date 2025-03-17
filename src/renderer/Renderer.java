@@ -8,6 +8,7 @@ import solid.Solid;
 import transforms.Mat4;
 import transforms.Point3D;
 import transforms.Vec3D;
+import utils.Lerp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +20,14 @@ public class Renderer {
     private int width, height;
     private Mat4 view, projection;
     private List <Vertex> transformed = new ArrayList<Vertex>();
+    private Lerp lerp;
 
     public Renderer(LineRasterizer lineRasterizer, TriangleRasterizer triangleRasterizer,int width, int height) {
         this.lineRasterizer = lineRasterizer;
         this.triangleRasterizer = triangleRasterizer;
         this.width = width;
         this.height = height;
+        lerp = new Lerp();
     }
 
     public void setView(Mat4 view) {
@@ -41,12 +44,45 @@ public class Renderer {
                 .mul(new Vec3D((width - 1) / 2., (height - 1) / 2., 1));
 
     }
+    private void drawTriangle(Vertex a, Vertex b, Vertex c) {
+        System.out.println("b");
+        Vertex A = new Vertex(a);
+        Vertex B = new Vertex(b);
+        Vertex C = new Vertex(c);
+        //First point
+        Point3D p = A.getPoint();
+        if(p.getW() != 0){
+            p = p.mul(1/p.getW());
+        }
+        Vec3D e = transformToScreen(new Vec3D(p));
+        A.setPoint(new Point3D(e));
+        //Second pooint
+         p = B.getPoint();
+        if(p.getW() != 0){
+            p = p.mul(1/p.getW());
+        }
+         e = transformToScreen(new Vec3D(p));
+        B.setPoint(new Point3D(e));
+        //Trird point
+        p = C.getPoint();
+        if(p.getW() != 0){
+            p = p.mul(1/p.getW());
+        }
+
+        e = transformToScreen(new Vec3D(p));
+        System.out.println(e.getX());
+        System.out.println(e.getY());
+        System.out.println(e.getZ());
+        C.setPoint(new Point3D(e));
+        triangleRasterizer.rasterize(A,B,C);
+
+    }
 
 
     public void renderSolid(Solid solid){
         transformed.clear(); // We take every point in our vertex buffer and transform it with first three steps of visualisation pipeline
         for(int i = 0;i < solid.getVertexBuffer().size();i++) {
-            Point3D p = solid.getVertexBuffer().get(i).getPoint();
+            Point3D p = new Point3D(solid.getVertexBuffer().get(i).getPoint());
             p = p.mul(solid.getModel()).mul(view).mul(projection);
 
             double x = p.getX();
@@ -54,12 +90,14 @@ public class Renderer {
             double z = p.getZ();
             double w = p.getW();
             //Here we are doing dehomogenization and screen transformation.
-            if (w != 0 && x > -w && x < w && y > -w && y < w && z > 0 && z < w) {   //TODO: TO JE PRISNE OREZANI, DODELAT
+            /*if (w != 0 ) {
                 p = p.mul(1 / p.getW());
-            }
-            Vec3D a = transformToScreen(new Vec3D(p));
-            transformed.add(solid.getVertexBuffer().get(i));
-            transformed.get(i).setPoint(a);
+            }*/
+            //Vec3D a = transformToScreen(new Vec3D(p));
+            transformed.add(new Vertex(solid.getVertexBuffer().get(i)));
+            //transformed.get(i).setPoint(a);
+            transformed.get(i).setPoint(p);
+
         }
 
 
@@ -75,12 +113,12 @@ public class Renderer {
                         int indexC = start + 2;
                         start +=3;
 
-                        //  todo: clipping dole
                         Vertex vertexA = transformed.get(solid.getIndexBuffer().get(indexA) );
                         Vertex vertexB = transformed.get(solid.getIndexBuffer().get(indexB) );
                         Vertex vertexC = transformed.get(solid.getIndexBuffer().get(indexC) );
 
-                        triangleRasterizer.rasterize(vertexA, vertexB, vertexC);
+                        //triangleRasterizer.rasterize(vertexA, vertexB, vertexC);
+                        ClipTriangle(vertexA, vertexB, vertexC);
                     }
                     break;
                 case Lines:
@@ -97,36 +135,68 @@ public class Renderer {
         //TODO: seradit dle Z
         double zMin = 0;
         //TODO:PREDELAT RAZENI
-        if(a.getPoint().getZ() < b.getPoint().getZ()){
-            Point3D tmp = new Point3D(a.getPoint().getX(), a.getPoint().getY(), a.getPoint().getZ());
-            a.setPoint(b.getPoint());
-            b.setPoint(tmp);
+
+        Vertex A = new Vertex(a);
+        Vertex B = new Vertex(b);
+        Vertex C = new Vertex(c);
+
+        System.out.println("a");
+        if(A.getPoint().getZ() < B.getPoint().getZ()) {
+            Vertex tmp = new Vertex(A);
+            A = new Vertex(B);
+            B = new Vertex(tmp);
         }
 
-        if(a.getPoint().getZ() < c.getPoint().getZ()){
-            Point3D tmp = new Point3D(a.getPoint().getX(), a.getPoint().getY(), a.getPoint().getZ());
-            a.setPoint(c.getPoint());
-            c.setPoint(tmp);
+        if(A.getPoint().getZ() < C.getPoint().getZ()) {
+            Vertex tmp = new Vertex(A);
+            A = new Vertex(C);
+            C = new Vertex(tmp);
+        }
+        if(B.getPoint().getZ() < C.getPoint().getZ()) {
+            Vertex tmp = new Vertex(B);
+            B = new Vertex(C);
+            C = new Vertex(tmp);
         }
 
-        if(b.getPoint().getZ() < c.getPoint().getZ()){
-            Point3D tmp = new Point3D(b.getPoint().getX(), b.getPoint().getY(), b.getPoint().getZ());
-            b.setPoint(c.getPoint());
-            c.setPoint(tmp);
-        }
+        double zA = A.getPoint().getZ();
+        double zB = B.getPoint().getZ();
+        double zC = C.getPoint().getZ();
 
-        if(a.getPoint().getZ() < zMin){
+
+       /* if(zA > 1 || zB > 1 || zC > 1) { //IT is behind camera, do nothing.
+            return;
+        }*/
+
+        if(A.getPoint().getZ() < zMin){
+            // DO nothing, its outside of sight
             return;
         }
-        if(b.getPoint().getZ() < zMin){
-            //interpoalci spocitat novy trojuhelnik
+        if(B.getPoint().getZ() < zMin){
+            //Two vertexes are out of sight
+            double t1 = (0-zA)/(zB-zA); //That zero is not necessary cause its fcking zero, but its for me as litlle check
+            Vertex b1 = (Vertex)lerp.lerp(A,B,t1);
+            double t2 = (0-zA)/(zC-zA);
+            Vertex b2 = (Vertex)lerp.lerp(A,C,t2);
+            //triangleRasterizer.rasterize(A,b1,b2);
+            drawTriangle(A,b1,b2);
             return;
         }
-        if(c.getPoint().getZ() < zMin){
-            //pruser, dva trojuhelniky
+        if(C.getPoint().getZ() < zMin){
+            //Only one vertex is out of sight
+            double t1 = (0-zB)/(zC-zB);
+            Vertex b1 = ((Vertex)lerp.lerp(B,C,t1));
+
+            double t2 = (double)(0 - zA)/(zC-zA);
+            Vertex b2 = ((Vertex)lerp.lerp(A,C,t2));
+            //triangleRasterizer.rasterize(A,B,b1);
+            drawTriangle(A,B,b1);
+            //triangleRasterizer.rasterize(A,b1,b2);
+            drawTriangle(A,b1,b2);
+
             return;
         }
 
-        //Nic z predchoziho neplati, rasterizujeme puvodni trojuhelnik
+        //triangleRasterizer.rasterize(A,B,C);
+        drawTriangle(A,B,C);
     }
 }

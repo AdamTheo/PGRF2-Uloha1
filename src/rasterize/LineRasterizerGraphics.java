@@ -21,5 +21,7 @@ public class LineRasterizerGraphics extends LineRasterizer {
         Graphics g = ((ImageBuffer)raster).getGraphics();
         g.setColor(new Color(color));
         g.drawLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
+
+
     }
 }

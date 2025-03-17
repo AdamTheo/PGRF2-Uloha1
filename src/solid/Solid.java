@@ -31,4 +31,7 @@ public abstract class Solid {
     public void setModel(Mat4 model) {
         this.model = model;
     }
+    public void test(){ // Universal method for debugging
+
+    }
 }

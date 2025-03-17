@@ -14,13 +14,59 @@ public class Cube extends Solid {
         vertexBuffer.add(new Vertex(new Point3D( -0.2,0.2,0.2),new Col(0x00ff00)));
         vertexBuffer.add(new Vertex(new Point3D( 0.2,0.2,0.2),new Col(0x00ff00)));
 
+        vertexBuffer.add(new Vertex(new Point3D( -0.2,-0.2,-0.2),new Col(0xff0000)));
+        vertexBuffer.add(new Vertex(new Point3D( 0.2,-0.2,-0.2),new Col(0xff0000)));
+        vertexBuffer.add(new Vertex(new Point3D( -0.2,-0.2,0.2),new Col(0x00ff00)));
+        vertexBuffer.add(new Vertex(new Point3D( 0.2,-0.2,0.2),new Col(0x00ff00)));
+        //Front
         indexBuffer.add(0);
         indexBuffer.add(1);
         indexBuffer.add(2);
         indexBuffer.add(3);
         indexBuffer.add(2);
         indexBuffer.add(1);
+        //Back
+        indexBuffer.add(4);
+        indexBuffer.add(5);
+        indexBuffer.add(6);
+        indexBuffer.add(7);
+        indexBuffer.add(6);
+        indexBuffer.add(5);
+        //Right
+        indexBuffer.add(1);
+        indexBuffer.add(3);
+        indexBuffer.add(5);
+        indexBuffer.add(7);
+        indexBuffer.add(5);
+        indexBuffer.add(3);
+        //Left
+        indexBuffer.add(0);
+        indexBuffer.add(2);
+        indexBuffer.add(6);
+        indexBuffer.add(6);
+        indexBuffer.add(4);
+        indexBuffer.add(0);
+        //top
+        indexBuffer.add(2);
+        indexBuffer.add(3);
+        indexBuffer.add(6);
+        indexBuffer.add(6);
+        indexBuffer.add(7);
+        indexBuffer.add(3);
+        //bottom
+        indexBuffer.add(0);
+        indexBuffer.add(1);
+        indexBuffer.add(4);
+        indexBuffer.add(4);
+        indexBuffer.add(5);
+        indexBuffer.add(1);
 
-        partBuffer.add(new Part(0,2, TopologyType.Triangles));
+
+
+        partBuffer.add(new Part(0,12, TopologyType.Triangles));
+    }
+    @Override
+    public void test(){ // Debugging method
+        System.out.println(vertexBuffer.get(0).getPoint().getX() + "," + vertexBuffer.get(0).getPoint().getY() + "," + vertexBuffer.get(0).getPoint().getZ());
     }
 }
