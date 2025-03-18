@@ -26,11 +26,19 @@ public class Controller3D {
     private Camera camera;
     private final Mat4PerspRH proj;
     private final Mat4OrthoRH orth;
+    private int perspect;
     private List<Solid> solidList = new ArrayList<>();
-    private int chosenObject = 0;
+    private int chosenObject = 0; //Index of currently chosen object
     private final Solid cube;
     private final Solid pyramid;
     private final Solid pillar;
+    Solid chosen; // Used for determining currently selected solid
+
+    private final AxisX axisX;
+    private final AxisY axisY;
+    private final AxisZ axisZ;
+    private List<Solid> axis = new ArrayList<>();
+    private List<Col> activeColors = new ArrayList<>(); // Used to store colors of active chosen SOlid
 
     int startX;
     int startY;
@@ -41,13 +49,25 @@ public class Controller3D {
         LineRasterizer = new LineRasterizerGraphics(panel.getRaster());
         lineRasterizerWithZ = new LineRasterizerWithZ(Zbuffer);
         TriangleRasterizer = new TriangleRasterizer(LineRasterizer, Zbuffer);
-        initListeners();
         cube = new Cube();
-        cube.setModel(new Mat4Transl(0.2,0.4,0.2));
+        cube.setModel(new Mat4Transl(0.2, 0.4, 0.2));
         pyramid = new Pyramid();
-        pyramid.setModel(new Mat4Transl(-0.2,-0.4,0.1));
+        pyramid.setModel(new Mat4Transl(0.2, 0.4, 0.2));
         pillar = new Pillar();
-        pillar.setModel(new Mat4Transl(0.3,-0.4,0.1));
+        pillar.setModel(new Mat4Transl(0.3, -0.4, 0.1));
+        chosen = cube; // This is dummy value so that Ida doesnt yell at me
+
+        solidList.add(cube);
+        solidList.add(pyramid);
+        solidList.add(pillar);
+
+        axisX = new AxisX();
+        axisY = new AxisY();
+        axisZ = new AxisZ();
+
+        axis.add(axisX);
+        axis.add(axisY);
+        axis.add(axisZ);
 
         renderer = new Renderer(
                 new LineRasterizerWithZ(Zbuffer),
@@ -67,20 +87,12 @@ public class Controller3D {
 
         renderer.setProjection(proj); // Initial perspective
         renderer.setView(camera.getViewMatrix()); // Setting basic camera.
-
+        perspect = 0; // 0 = projective, 1 = orthogonal.
+        initListeners();
         redraw();
     }
 
     private void initListeners() {
-        panel.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-
-
-            }
-        });
-
         panel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 startX = e.getX();
@@ -108,15 +120,8 @@ public class Controller3D {
         });
         panel.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
-                int key = e.getKeyCode();
-                Solid chosen; // the currently chosen objest for edit
-                chosen = cube; // Dummy value so that Idea doesnt scream
-                if (chosenObject == 1) {
-                    //chosen = pyramid;
-                }
-                if (chosenObject == 2) {
-                    //chosen = block;
-                }
+
+                //Basically when chosenObject = 0, we update camera. Otherwise we are updating currently selected object
 
                 switch (e.getKeyCode()) { // what key is pressed
                     case KeyEvent.VK_W:
@@ -156,24 +161,39 @@ public class Controller3D {
                         break;
 
                     case KeyEvent.VK_P: // Changing projection
-                        /*perspect = (perspect + 1) % 2;
+                        perspect = (perspect + 1) % 2;
                         if (perspect == 0) {
                             renderer.setProjection(proj);
                         }
                         if (perspect == 1) {
                             renderer.setProjection(orth);
-                        }*/
+                        }
                         break;
 
                     case KeyEvent.VK_C: // Changing chosen object
-                        chosenObject = (chosenObject + 1) % 3;
-                        //pyramid.setChosen(false);
-                        //block.setChosen(false);
+                        chosenObject = (chosenObject + 1) % 4;
+                        if (chosenObject == 0) {
+                            if (activeColors.size() > 0) {
+                                pillar.setAllColors(activeColors);
+                            }
+                        }
+
                         if (chosenObject == 1) {
-                        //    pyramid.setChosen(true);
+                            chosen = pyramid;
+                            activeColors = chosen.getColors();
+                            chosen.setActiveColors();
                         }
                         if (chosenObject == 2) {
-                        //    block.setChosen(true);
+                            pyramid.setAllColors(activeColors);
+                            chosen = cube;
+                            activeColors = chosen.getColors();
+                            chosen.setActiveColors();
+                        }
+                        if (chosenObject == 3) {
+                            cube.setAllColors(activeColors);
+                            chosen = pillar;
+                            activeColors = chosen.getColors();
+                            chosen.setActiveColors();
                         }
                         break;
 
@@ -182,7 +202,7 @@ public class Controller3D {
                         if (chosenObject == 0) {
                             camera = camera.up(0.05);
                             renderer.setView(camera.getViewMatrix()); // Update camera
-                        }else{
+                        } else {
                             chosen.setModel(chosen.getModel().mul(new Mat4Scale(1.1)));
                         }
                         break;
@@ -191,7 +211,7 @@ public class Controller3D {
                         if (chosenObject == 0) {
                             camera = camera.down(0.05);
                             renderer.setView(camera.getViewMatrix()); // Update camera
-                        }else{
+                        } else {
                             chosen.setModel(chosen.getModel().mul(new Mat4Scale(0.9)));
                         }
                         break;
@@ -228,29 +248,10 @@ public class Controller3D {
 
     private void redraw() {
         panel.clear();
-
-        //Zbuffer.setPixelWithZTest(50,400,0.1,new Col(0xff0000));
-        //Zbuffer.setPixelWithZTest(50,50,0.5,new Col(0x00ff00));
-
-        //Vertex a = new Vertex(new Point3D(-200,-10,0.3),new Col(0xff0000));
-        //Vertex b = new Vertex(new Point3D(500,900,0.5),new Col(0x00ff00));
-        //Vertex c = new Vertex(new Point3D(1200,60,0.7),new Col(0x0000ff));
-
-        //TriangleRasterizer.rasterize(a,b,c);
         Zbuffer.clear();
-
-        //AxisX axisX = new AxisX();
-        //renderer.renderSolid(axisX);
-        renderer.renderSolid(cube);
-        renderer.renderSolid(pyramid);
-        renderer.renderSolid(pillar);
-        //lineRasterizerWithZ.rasterize(new Vertex(500,500,0.5,new Col(0xff0000)),new Vertex(100,100,0.5,new Col(0x00ff00)));
-        //cube.test();
-
-
-
+        renderer.renderSolids(axis);
+        renderer.renderSolids(solidList);
         panel.repaint();
-
     }
 
 }
