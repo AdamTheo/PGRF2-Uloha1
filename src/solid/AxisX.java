@@ -8,6 +8,7 @@ import transforms.Point3D;
 
 public class AxisX extends Solid {
     public AxisX() {
+        super();
         vertexBuffer.add(new Vertex(new Point3D(0, 0, 0), new Col(0xff0000)));
         vertexBuffer.add(new Vertex(new Point3D(1, 0, 0), new Col(0xff0000)));
 

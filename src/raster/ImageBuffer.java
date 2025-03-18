@@ -5,7 +5,7 @@ import transforms.Col;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class ImageBuffer implements Raster <Col> {
+public class ImageBuffer implements Raster<Col> {
 
     private final BufferedImage image;
 
@@ -20,7 +20,7 @@ public class ImageBuffer implements Raster <Col> {
 
     @Override
     public Col getValue(int x, int y) {
-        return new Col( image.getRGB(x, y));
+        return new Col(image.getRGB(x, y));
     }
 
     @Override

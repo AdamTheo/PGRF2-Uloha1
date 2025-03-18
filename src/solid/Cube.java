@@ -9,15 +9,15 @@ import transforms.Point3D;
 public class Cube extends Solid {
     public Cube() {
         super();
-        vertexBuffer.add(new Vertex(new Point3D( -0.2,0.2,-0.2),new Col(0xff0000)));
-        vertexBuffer.add(new Vertex(new Point3D( 0.2,0.2,-0.2),new Col(0xff0000)));
-        vertexBuffer.add(new Vertex(new Point3D( -0.2,0.2,0.2),new Col(0x00ff00)));
-        vertexBuffer.add(new Vertex(new Point3D( 0.2,0.2,0.2),new Col(0x00ff00)));
+        vertexBuffer.add(new Vertex(new Point3D(-0.2, 0.2, -0.2), new Col(0xff0000)));
+        vertexBuffer.add(new Vertex(new Point3D(0.2, 0.2, -0.2), new Col(0xff0000)));
+        vertexBuffer.add(new Vertex(new Point3D(-0.2, 0.2, 0.2), new Col(0x00ff00)));
+        vertexBuffer.add(new Vertex(new Point3D(0.2, 0.2, 0.2), new Col(0x00ff00)));
 
-        vertexBuffer.add(new Vertex(new Point3D( -0.2,-0.2,-0.2),new Col(0xff0000)));
-        vertexBuffer.add(new Vertex(new Point3D( 0.2,-0.2,-0.2),new Col(0xff0000)));
-        vertexBuffer.add(new Vertex(new Point3D( -0.2,-0.2,0.2),new Col(0x00ff00)));
-        vertexBuffer.add(new Vertex(new Point3D( 0.2,-0.2,0.2),new Col(0x00ff00)));
+        vertexBuffer.add(new Vertex(new Point3D(-0.2, -0.2, -0.2), new Col(0xff0000)));
+        vertexBuffer.add(new Vertex(new Point3D(0.2, -0.2, -0.2), new Col(0xff0000)));
+        vertexBuffer.add(new Vertex(new Point3D(-0.2, -0.2, 0.2), new Col(0x00ff00)));
+        vertexBuffer.add(new Vertex(new Point3D(0.2, -0.2, 0.2), new Col(0x00ff00)));
         //Front
         indexBuffer.add(0);
         indexBuffer.add(1);
@@ -62,11 +62,7 @@ public class Cube extends Solid {
         indexBuffer.add(1);
 
 
+        partBuffer.add(new Part(0, 12, TopologyType.Triangles));
+    }
 
-        partBuffer.add(new Part(0,12, TopologyType.Triangles));
-    }
-    @Override
-    public void test(){ // Debugging method
-        System.out.println(vertexBuffer.get(0).getPoint().getX() + "," + vertexBuffer.get(0).getPoint().getY() + "," + vertexBuffer.get(0).getPoint().getZ());
-    }
 }

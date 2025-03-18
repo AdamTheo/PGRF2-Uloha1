@@ -9,8 +9,6 @@ import java.awt.*;
 public class Vertex implements Vectorizable<Vertex> {
     Point3D point;
     Col color;
-    // + Normala
-    // + UV
 
     public Vertex(int x, int y, Double z, Col color) {
         point = new Point3D(x, y, z);
@@ -27,7 +25,6 @@ public class Vertex implements Vectorizable<Vertex> {
     public Vertex(Vertex v) {
         this.point = v.point;
         this.color = v.color;
-
     }
 
     public Point3D getPoint() {
@@ -47,7 +44,9 @@ public class Vertex implements Vectorizable<Vertex> {
         return color;
     }
 
-    public void setColor(Col color) {}
+    public void setColor(Col color) {
+        this.color = new Col(color);
+    }
 
     @Override
     public Vertex mul(double k) {
